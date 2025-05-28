@@ -273,11 +273,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f95b4ab85c00a8a4c9554d1e1af2aba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  moveSpeed: 3
   rotationSpeed: 90
   jumpForce: 5
-  runSpeedMultiplier: 1.75
-  mouseSensitivity: 0.2
+  runSpeedMultiplier: 1.5
+  mouseSensitivity: 0.1
   cameraPivot: {fileID: 774277574}
   gun: {fileID: 1765038791}
 --- !u!54 &310872393
@@ -476,10 +476,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 1784366901}
   cameraPivot: {fileID: 774277574}
-  distance: 2
+  normalDistance: 2.5
+  aimDistance: 0.9
   height: 1.6
   shoulderOffset: 0.5
   smoothSpeed: 100
+  normalFOV: 90
+  aimFOV: 30
 --- !u!1 &333416829 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6580069757812072703, guid: 7166087c57f18214f9cc1622ff2e3113, type: 3}
@@ -1920,7 +1923,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -1, y: 0}
-  m_SizeDelta: {x: 5, y: 5}
+  m_SizeDelta: {x: 4, y: 4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &936015421
 MonoBehaviour:
@@ -2145,7 +2148,8 @@ MonoBehaviour:
   bulletPool: {fileID: 0}
   range: 100
   damage: 10
-  fireRate: 10
+  normalFireRate: 0
+  aimFireRate: 0
   magazineSize: 30
   reloadTime: 2
   hitMask:
@@ -2656,7 +2660,8 @@ MonoBehaviour:
   bulletPool: {fileID: 828126059}
   range: 100
   damage: 10
-  fireRate: 2
+  normalFireRate: 100
+  aimFireRate: 1
   magazineSize: 6
   reloadTime: 2
   hitMask:

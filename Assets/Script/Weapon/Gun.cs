@@ -10,7 +10,8 @@ public class Gun : MonoBehaviour
     [Header("Stats")]
     [SerializeField] private float range;
     [SerializeField] private float damage;
-    [SerializeField] private float fireRate;
+    [SerializeField] private float normalFireRate; 
+    [SerializeField] private float aimFireRate;
     [SerializeField] private int magazineSize;
     [SerializeField] private float reloadTime;
     [SerializeField] private LayerMask hitMask;
@@ -22,10 +23,12 @@ public class Gun : MonoBehaviour
     private int currentAmmo;
     private float nextFireTime = 0f;
     private bool isReloading = false;
+    private float currentFireRate; 
 
     private void Start()
     {
         currentAmmo = magazineSize;
+        currentFireRate = normalFireRate; 
     }
 
     private void Update()
@@ -45,7 +48,7 @@ public class Gun : MonoBehaviour
         }
 
         Fire();
-        nextFireTime = Time.time + 1f / fireRate;
+        nextFireTime = Time.time + 1f / currentFireRate;
     }
 
     public void StartReload()
@@ -63,6 +66,11 @@ public class Gun : MonoBehaviour
         currentAmmo = magazineSize;
         isReloading = false;
         Debug.Log("Reload complete.");
+    }
+
+    public void SetAiming(bool isAiming)
+    {
+        currentFireRate = isAiming ? aimFireRate : normalFireRate;
     }
 
     private void Fire()

@@ -10,6 +10,7 @@ public class PlayerInputHandler : MonoBehaviour
     public bool RunPressed { get; private set; }
     public bool FirePressed { get; private set; }
     public bool ReloadPressed { get; private set; }
+    public bool AimPressed { get; private set; } 
 
     private void Awake()
     {
@@ -29,6 +30,9 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions.Player.Fire.performed += ctx => FirePressed = true;
 
         inputActions.Player.Reload.performed += ctx => ReloadPressed = true;
+
+        inputActions.Player.Aim.performed += ctx => AimPressed = true; 
+        inputActions.Player.Aim.canceled += ctx => AimPressed = false; 
     }
 
     private void OnEnable() => inputActions.Enable();
@@ -36,8 +40,9 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void FixedUpdate()
     {
-        JumpPressed = false;
-        FirePressed = false;
-        ReloadPressed = false;
+        JumpPressed = false;  
+        FirePressed = false;  
+        ReloadPressed = false; 
+
     }
 }

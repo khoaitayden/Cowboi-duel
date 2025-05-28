@@ -19,8 +19,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private PlayerInputHandler inputHandler;
     private bool isGrounded;
-
     private float cameraPitch = 0f;
+    private bool isAiming = false;
 
     void Start()
     {
@@ -33,7 +33,8 @@ public class PlayerController : MonoBehaviour
     {
         HandleLook();
         HandleFire();
-        HandleReload(); // Add reload handling
+        HandleReload();
+        HandleAim();
     }
 
     void FixedUpdate()
@@ -61,10 +62,30 @@ public class PlayerController : MonoBehaviour
             gun.TryFire();
     }
 
-    private void HandleReload() 
+    private void HandleReload()
     {
         if (inputHandler.ReloadPressed)
             gun.StartReload();
+    }
+
+    private void HandleAim()
+    {
+        if (inputHandler.AimPressed && !isAiming)
+        {
+            isAiming = true;
+            ShoulderCamera shoulderCam = cameraPivot.GetComponentInChildren<ShoulderCamera>();
+            if (shoulderCam != null)
+                shoulderCam.SetAiming(true);
+            gun.SetAiming(true);
+        }
+        else if (!inputHandler.AimPressed && isAiming)
+        {
+            isAiming = false;
+            ShoulderCamera shoulderCam = cameraPivot.GetComponentInChildren<ShoulderCamera>();
+            if (shoulderCam != null)
+                shoulderCam.SetAiming(false);
+            gun.SetAiming(false);
+        }
     }
 
     private void HandleMovement()
