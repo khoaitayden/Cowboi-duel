@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleAim()
     {
-        if (inputHandler.AimPressed && !isAiming)
+        if (inputHandler.AimPressed && !isAiming && isGrounded && !inputHandler.RunPressed)
         {
             isAiming = true;
             ShoulderCamera shoulderCam = cameraPivot.GetComponentInChildren<ShoulderCamera>();
@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour
                 shoulderCam.SetAiming(true);
             gun.SetAiming(true);
         }
-        else if (!inputHandler.AimPressed && isAiming)
+        else if ((!inputHandler.AimPressed || !isGrounded || inputHandler.RunPressed) && isAiming)
         {
             isAiming = false;
             ShoulderCamera shoulderCam = cameraPivot.GetComponentInChildren<ShoulderCamera>();
@@ -116,7 +116,7 @@ public class PlayerController : MonoBehaviour
         if (inputHandler.JumpPressed && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false;
+            isGrounded = false; 
         }
     }
 
@@ -130,5 +130,10 @@ public class PlayerController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        isGrounded = false; 
     }
 }
