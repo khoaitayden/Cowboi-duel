@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 2724751925013661950}
   - component: {fileID: 1583980607226709125}
   - component: {fileID: 8590341604752848781}
-  - component: {fileID: 282008709657906050}
   - component: {fileID: 2048270708032780728}
+  - component: {fileID: 4630388669004333312}
   m_Layer: 0
   m_Name: Bullet
   m_TagString: Untagged
@@ -88,20 +88,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &282008709657906050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3750323444497481308}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c89b43be7a7ca394aad92a56e9352c76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 500
-  lifeTime: 1
 --- !u!65 &2048270708032780728
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -123,3 +109,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.15170364, y: 0.54155076, z: 0.1517036}
   m_Center: {x: -0.000000007450581, y: 0.2706905, z: 0.000000014901165}
+--- !u!114 &4630388669004333312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3750323444497481308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda96b0995b94f7abad685bdd579e3be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 100
+  lifeTime: 2
