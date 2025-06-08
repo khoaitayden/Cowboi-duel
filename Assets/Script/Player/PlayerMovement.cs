@@ -16,16 +16,19 @@ public class PlayerMovement : MonoBehaviour
     private InputManager inputHandler;
     private bool isGrounded;
     private bool isCrouching;
+    private float lastJumpTime;
+    private const float JUMP_COOLDOWN = 1f; 
 
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         inputHandler = GetComponent<InputManager>();
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
+        isGrounded = CheckGrounded();
         HandleMovement();
         HandleJump();
     }
@@ -55,10 +58,16 @@ public class PlayerMovement : MonoBehaviour
             if (inputHandler.RunPressed && !isCrouching)
             {
                 currentSpeed *= runSpeedBoost;
+                Debug.Log($"Running: Current Speed = {currentSpeed}");
             }
             else if (isCrouching)
             {
                 currentSpeed *= crouchSpeedReduction;
+                Debug.Log($"Crouching: Current Speed = {currentSpeed}");
+            }
+            else
+            {
+                Debug.Log($"Walking: Current Speed = {currentSpeed}");
             }
 
             Vector3 targetVelocity = moveDir * currentSpeed * input.magnitude;
@@ -77,28 +86,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJump()
     {
-        if (inputHandler.JumpPressed && isGrounded && !isCrouching)
+        if (inputHandler.JumpPressed && isGrounded && !isCrouching && Time.time >= lastJumpTime + JUMP_COOLDOWN)
         {
             rb.AddForce(Vector3.up * jumpStrength, ForceMode.Impulse);
             isGrounded = false;
+            lastJumpTime = Time.time;
         }
     }
 
-    private void OnCollisionStay(Collision collision)
+    private bool CheckGrounded()
     {
-        foreach (ContactPoint contact in collision.contacts)
-        {
-            if (Vector3.Dot(contact.normal, Vector3.up) > 0.5f)
-            {
-                isGrounded = true;
-                break;
-            }
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        isGrounded = false;
+        float rayLength = 0.6f;
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+        bool grounded = Physics.Raycast(rayOrigin, Vector3.down, rayLength);
+        return grounded;
     }
 
     public void SetCrouching(bool crouching)

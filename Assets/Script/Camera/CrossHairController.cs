@@ -29,17 +29,5 @@ public class CrosshairController : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        if (Application.isPlaying)
-        {
-            Gizmos.color = Color.red;
-            if (target != null) Gizmos.DrawSphere(target.position, 0.15f);
 
-            if (cameraPivot != null)
-            {
-                Gizmos.color = Color.yellow;
-            }
-        }
-    }
 }

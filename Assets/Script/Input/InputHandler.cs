@@ -12,10 +12,16 @@ public class InputManager : MonoBehaviour
     public bool AimPressed { get; private set; }
     public bool FreeCameraPressed { get; private set; }
     public bool ShoulderTogglePressed { get; private set; }
+    private bool jumpPending;
 
     private void Awake()
     {
         inputActions = new PlayerInput();
+        if (inputActions == null)
+        {
+            Debug.LogError("PlayerInput actions could not be initialized.");
+            return;
+        }
 
         inputActions.Player.Move.performed += ctx => MoveInput = ctx.ReadValue<Vector2>();
         inputActions.Player.Move.canceled += ctx => MoveInput = Vector2.zero;
@@ -23,10 +29,21 @@ public class InputManager : MonoBehaviour
         inputActions.Player.Look.performed += ctx => LookInput = ctx.ReadValue<Vector2>();
         inputActions.Player.Look.canceled += ctx => LookInput = Vector2.zero;
 
-        inputActions.Player.Jump.performed += ctx => JumpPressed = true;
+        inputActions.Player.Jump.performed += ctx =>
+        {
+            jumpPending = true;
+        };
 
-        inputActions.Player.Run.performed += ctx => RunPressed = true;
-        inputActions.Player.Run.canceled += ctx => RunPressed = false;
+        inputActions.Player.Run.performed += ctx =>
+        {
+            RunPressed = true;
+            Debug.Log("RunPressed set to true");
+        };
+        inputActions.Player.Run.canceled += ctx =>
+        {
+            RunPressed = false;
+            Debug.Log("RunPressed set to false");
+        };
 
         inputActions.Player.Fire.performed += ctx => FirePressed = true;
 
@@ -46,7 +63,8 @@ public class InputManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        JumpPressed = false;
+        JumpPressed = jumpPending;
+        jumpPending = false;
         FirePressed = false;
         ReloadPressed = false;
         ShoulderTogglePressed = false;

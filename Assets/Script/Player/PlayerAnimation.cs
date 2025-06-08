@@ -4,7 +4,8 @@ public class PlayerAnimation : MonoBehaviour
 {
     [Header("Animation")]
     [SerializeField] private Animator animator;
-    [SerializeField] private float animationSpeedMultiplier;
+    [SerializeField] private float animationSpeedMultiplier; // Normal walk speed multiplier
+    [SerializeField] private float runAnimationSpeedMultiplier; // Run speed multiplier
 
     private InputManager inputHandler;
     private PlayerMovement playerMovement;
@@ -15,7 +16,7 @@ public class PlayerAnimation : MonoBehaviour
     private float forwardDirection;
     private float movementSmoothingTime = 0.1f;
 
-    private enum MovementState { Idle, Walk, Run, Crouch }
+    private enum MovementState { Idle, Walk, Crouch }
     private MovementState currentMovementState = MovementState.Idle;
 
     void Start()
@@ -31,7 +32,7 @@ public class PlayerAnimation : MonoBehaviour
         UpdateAnimator();
     }
 
-    private void UpdateAnimator()
+    void UpdateAnimator()
     {
         if (animator == null) return;
 
@@ -46,19 +47,34 @@ public class PlayerAnimation : MonoBehaviour
 
         float horizontalSpeed = new Vector2(rb.linearVelocity.x, rb.linearVelocity.z).magnitude;
 
-        float baseAnimationSpeed = 1.0f;
-        if (currentMovementState == MovementState.Run && !playerMovement.IsCrouching())
+        // Determine movement state
+        if (input.magnitude > 0.1f && !playerMovement.IsCrouching())
         {
-            baseAnimationSpeed *= playerMovement.runSpeedBoost;
+            currentMovementState = MovementState.Walk;
+        }
+        else if (playerMovement.IsCrouching())
+        {
+            currentMovementState = MovementState.Crouch;
+        }
+        else
+        {
+            currentMovementState = MovementState.Idle;
+        }
+
+        float baseAnimationSpeed = 1.0f;
+        if (inputHandler.RunPressed && !playerMovement.IsCrouching())
+        {
+            baseAnimationSpeed *= runAnimationSpeedMultiplier; // Use run speed multiplier
         }
         else if (playerMovement.IsCrouching())
         {
             baseAnimationSpeed *= playerMovement.crouchSpeedReduction;
         }
 
-        float maxSpeed = playerMovement.baseMoveSpeed * Mathf.Max(1.0f, playerMovement.runSpeedBoost, playerMovement.crouchSpeedReduction);
+        float maxSpeed = playerMovement.baseMoveSpeed * Mathf.Max(1.0f, runAnimationSpeedMultiplier, playerMovement.crouchSpeedReduction);
         animator.speed = Mathf.Clamp01(horizontalSpeed / maxSpeed) * baseAnimationSpeed * animationSpeedMultiplier;
 
+        // Set animation parameters for blend trees
         animator.SetFloat("Speed", currentMovementSpeed);
         animator.SetFloat("DirectionX", horizontalDirection);
         animator.SetFloat("DirectionY", forwardDirection);
