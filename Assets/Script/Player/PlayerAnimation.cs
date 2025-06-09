@@ -6,6 +6,7 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private float animationSpeedMultiplier; // Normal walk speed multiplier
     [SerializeField] private float runAnimationSpeedMultiplier; // Run speed multiplier
+    [SerializeField] private float jumpAnimationDuration = 0.5f; // Estimated duration of jump animation
 
     private InputManager inputHandler;
     private PlayerMovement playerMovement;
@@ -15,6 +16,8 @@ public class PlayerAnimation : MonoBehaviour
     private float horizontalDirection;
     private float forwardDirection;
     private float movementSmoothingTime = 0.1f;
+    private float jumpTimer = 0f;
+    private bool isJumpTriggered = false;
 
     private enum MovementState { Idle, Walk, Crouch }
     private MovementState currentMovementState = MovementState.Idle;
@@ -64,7 +67,7 @@ public class PlayerAnimation : MonoBehaviour
         float baseAnimationSpeed = 1.0f;
         if (inputHandler.RunPressed && !playerMovement.IsCrouching())
         {
-            baseAnimationSpeed *= runAnimationSpeedMultiplier; // Use run speed multiplier
+            baseAnimationSpeed *= runAnimationSpeedMultiplier;
         }
         else if (playerMovement.IsCrouching())
         {
@@ -74,10 +77,30 @@ public class PlayerAnimation : MonoBehaviour
         float maxSpeed = playerMovement.baseMoveSpeed * Mathf.Max(1.0f, runAnimationSpeedMultiplier, playerMovement.crouchSpeedReduction);
         animator.speed = Mathf.Clamp01(horizontalSpeed / maxSpeed) * baseAnimationSpeed * animationSpeedMultiplier;
 
-        // Set animation parameters for blend trees
-        animator.SetFloat("Speed", currentMovementSpeed);
+        // Enhanced jump state with timer
+        if (inputHandler.JumpPressed && playerMovement.IsGrounded() && !playerMovement.IsCrouching())
+        {
+            isJumpTriggered = true;
+            jumpTimer = jumpAnimationDuration; // Start timer for full jump animation
+        }
+
+        if (isJumpTriggered)
+        {
+            jumpTimer -= Time.deltaTime;
+            if (jumpTimer <= 0)
+            {
+                isJumpTriggered = false;
+            }
+        }
+
+        bool isJumping = !playerMovement.IsGrounded() || isJumpTriggered; // Stay in jump state during airtime or timer
+        animator.SetBool("IsJumping", isJumping);
+
+        // Set direction for blend tree
         animator.SetFloat("DirectionX", horizontalDirection);
         animator.SetFloat("DirectionY", forwardDirection);
+
+        animator.SetFloat("Speed", currentMovementSpeed);
         animator.SetBool("IsCrouching", playerMovement.IsCrouching());
         animator.SetBool("IsAiming", playerCombat.IsAiming());
         animator.SetBool("IsGrounded", playerMovement.IsGrounded());
