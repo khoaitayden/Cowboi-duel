@@ -4,33 +4,37 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
-    public float baseMoveSpeed;
-    [SerializeField] private float jumpStrength;
-    public float runSpeedBoost;
-    public float crouchSpeedReduction;
+    [SerializeField] private float baseMoveSpeed = 5f;
+    [SerializeField] private float jumpStrength = 5f;
+    [SerializeField] private float runSpeedBoost = 1.5f;
+    [SerializeField] private float crouchSpeedReduction = 0.5f;
 
     [Header("Dependencies")]
     [SerializeField] private Transform cameraMountPoint;
+    [SerializeField] private PlayerLook playerLook;
 
     private Rigidbody rb;
     private InputManager inputHandler;
     private bool isGrounded;
     private bool isCrouching;
-    private float lastJumpTime;
-    private const float JUMP_COOLDOWN = 1f; 
 
-    private void Start()
+    void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         inputHandler = GetComponent<InputManager>();
+        playerLook = GetComponent<PlayerLook>();
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         isGrounded = CheckGrounded();
         HandleMovement();
         HandleJump();
+        if (playerLook != null && !inputHandler.FreeCameraPressed && !playerLook.IsReturningToNormal)
+        {
+            transform.rotation = Quaternion.Euler(0, playerLook.HorizontalCameraAngle, 0);
+        }
     }
 
     private void HandleMovement()
@@ -43,70 +47,51 @@ public class PlayerMovement : MonoBehaviour
             Vector3 moveDir;
             if (inputHandler.FreeCameraPressed)
             {
-                Vector3 bodyForward = transform.forward.normalized;
-                Vector3 bodyRight = transform.right.normalized;
-                moveDir = (bodyRight * input.x + bodyForward * input.y).normalized;
+                moveDir = (transform.right * input.x + transform.forward * input.y).normalized;
             }
             else
             {
-                Vector3 cameraForward = new Vector3(cameraMountPoint.forward.x, 0, cameraMountPoint.forward.z).normalized;
-                Vector3 cameraRight = new Vector3(cameraMountPoint.right.x, 0, cameraMountPoint.right.z).normalized;
+                Vector3 cameraForward = cameraMountPoint.forward;
+                Vector3 cameraRight = cameraMountPoint.right;
+                cameraForward.y = 0f;
+                cameraRight.y = 0f;
+                cameraForward.Normalize();
+                cameraRight.Normalize();
                 moveDir = (cameraRight * input.x + cameraForward * input.y).normalized;
             }
 
-            float currentSpeed = baseMoveSpeed;
-            if (inputHandler.RunPressed && !isCrouching)
-            {
-                currentSpeed *= runSpeedBoost;
-                Debug.Log($"Running: Current Speed = {currentSpeed}");
-            }
-            else if (isCrouching)
-            {
-                currentSpeed *= crouchSpeedReduction;
-                Debug.Log($"Crouching: Current Speed = {currentSpeed}");
-            }
-            else
-            {
-                Debug.Log($"Walking: Current Speed = {currentSpeed}");
-            }
+            float speed = baseMoveSpeed;
+            if (inputHandler.RunPressed && !isCrouching) speed *= runSpeedBoost;
+            else if (isCrouching) speed *= crouchSpeedReduction;
 
-            Vector3 targetVelocity = moveDir * currentSpeed * input.magnitude;
-            Vector3 currentVelocity = rb.linearVelocity;
-            Vector3 newVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 10f * Time.fixedDeltaTime);
+            Vector3 targetVelocity = moveDir * speed;
+            Vector3 newVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, 10f * Time.fixedDeltaTime);
             newVelocity.y = rb.linearVelocity.y;
             rb.linearVelocity = newVelocity;
         }
         else
         {
-            Vector3 currentVelocity = rb.linearVelocity;
-            Vector3 newVelocity = Vector3.Lerp(currentVelocity, new Vector3(0, currentVelocity.y, 0), 10f * Time.fixedDeltaTime);
+            Vector3 newVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, 10f * Time.fixedDeltaTime);
+            newVelocity.y = rb.linearVelocity.y;
             rb.linearVelocity = newVelocity;
         }
     }
 
     private void HandleJump()
     {
-        if (inputHandler.JumpPressed && isGrounded && !isCrouching && Time.time >= lastJumpTime + JUMP_COOLDOWN)
+        if (inputHandler.JumpPressed && isGrounded && !isCrouching)
         {
             rb.AddForce(Vector3.up * jumpStrength, ForceMode.Impulse);
             isGrounded = false;
-            lastJumpTime = Time.time;
         }
     }
 
     private bool CheckGrounded()
     {
-        float rayLength = 0.6f;
-        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
-        bool grounded = Physics.Raycast(rayOrigin, Vector3.down, rayLength);
-        return grounded;
+        return Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, 0.6f);
     }
 
-    public void SetCrouching(bool crouching)
-    {
-        isCrouching = crouching;
-    }
-
+    public void SetCrouching(bool crouching) => isCrouching = crouching;
     public bool IsGrounded() => isGrounded;
     public bool IsCrouching() => isCrouching;
 }

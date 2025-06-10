@@ -171,6 +171,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Crouch"",
+                    ""type"": ""Button"",
+                    ""id"": ""82d876c5-9c94-4650-ac10-36c8e1986502"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -327,6 +336,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""ToggleLeftOrRight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""62333d62-74d9-4a6e-8c3e-d107cab5db14"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -344,6 +364,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
         m_Player_FreeCamera = m_Player.FindAction("FreeCamera", throwIfNotFound: true);
         m_Player_ToggleLeftOrRight = m_Player.FindAction("ToggleLeftOrRight", throwIfNotFound: true);
+        m_Player_Crouch = m_Player.FindAction("Crouch", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -433,6 +454,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Aim;
     private readonly InputAction m_Player_FreeCamera;
     private readonly InputAction m_Player_ToggleLeftOrRight;
+    private readonly InputAction m_Player_Crouch;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -480,6 +502,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleLeftOrRight".
         /// </summary>
         public InputAction @ToggleLeftOrRight => m_Wrapper.m_Player_ToggleLeftOrRight;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Crouch".
+        /// </summary>
+        public InputAction @Crouch => m_Wrapper.m_Player_Crouch;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -533,6 +559,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ToggleLeftOrRight.started += instance.OnToggleLeftOrRight;
             @ToggleLeftOrRight.performed += instance.OnToggleLeftOrRight;
             @ToggleLeftOrRight.canceled += instance.OnToggleLeftOrRight;
+            @Crouch.started += instance.OnCrouch;
+            @Crouch.performed += instance.OnCrouch;
+            @Crouch.canceled += instance.OnCrouch;
         }
 
         /// <summary>
@@ -571,6 +600,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ToggleLeftOrRight.started -= instance.OnToggleLeftOrRight;
             @ToggleLeftOrRight.performed -= instance.OnToggleLeftOrRight;
             @ToggleLeftOrRight.canceled -= instance.OnToggleLeftOrRight;
+            @Crouch.started -= instance.OnCrouch;
+            @Crouch.performed -= instance.OnCrouch;
+            @Crouch.canceled -= instance.OnCrouch;
         }
 
         /// <summary>
@@ -674,5 +706,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleLeftOrRight(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Crouch" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCrouch(InputAction.CallbackContext context);
     }
 }

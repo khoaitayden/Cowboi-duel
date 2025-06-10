@@ -6,7 +6,8 @@ public class ShoulderCamera : MonoBehaviour
     [SerializeField] private Transform cameraPivot;    
     [SerializeField] private float normalDistance;     
     [SerializeField] private float aimDistance;        
-    [SerializeField] private float height;        
+    [SerializeField] private float normalHeight;        // Height when standing
+    [SerializeField] private float crouchHeight;        // Reduced height when crouching
     [SerializeField] private float shoulderOffset;
     [SerializeField] private float smoothSpeed;
     [SerializeField] private float normalFOV;   
@@ -14,22 +15,27 @@ public class ShoulderCamera : MonoBehaviour
     private Vector3 currentVelocity;
     private float currentDistance; 
     private float currentFOV;
+    private float currentHeight;  // Dynamic height based on crouch state
     private bool isRightShoulder = true;
     private InputManager inputHandler;
     private Camera cam;
+    private PlayerMovement playerMovement;
 
     void Start()
     {
         cam = GetComponent<Camera>(); 
         inputHandler = FindObjectOfType<InputManager>();
+        playerMovement = FindObjectOfType<PlayerMovement>(); // Assume single instance
         currentDistance = normalDistance;
         currentFOV = normalFOV;
+        currentHeight = normalHeight; // Start with normal height
         cam.fieldOfView = currentFOV;
     }
 
     void Update()
     {
         HandleShoulderToggle();
+        UpdateHeight(); // Update height based on crouch state
     }
 
     void LateUpdate()
@@ -42,7 +48,7 @@ public class ShoulderCamera : MonoBehaviour
         Vector3 desiredPosition = cameraPivot.position
                                 - (cameraPivot.forward * currentDistance)
                                 + shoulderOffsetVector
-                                + (Vector3.up * height);
+                                + (Vector3.up * currentHeight);
 
         transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, 1f / smoothSpeed);
 
@@ -63,5 +69,13 @@ public class ShoulderCamera : MonoBehaviour
     {
         currentDistance = isAiming ? aimDistance : normalDistance;
         currentFOV = isAiming ? aimFOV : normalFOV;
+    }
+
+    private void UpdateHeight()
+    {
+        if (playerMovement != null)
+        {
+            currentHeight = playerMovement.IsCrouching() ? crouchHeight : normalHeight;
+        }
     }
 }

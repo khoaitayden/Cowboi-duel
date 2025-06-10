@@ -16,6 +16,9 @@ public class PlayerLook : MonoBehaviour
     private bool isFreeCameraActive;
     private bool isReturningToNormal;
 
+    public float HorizontalCameraAngle => horizontalCameraAngle;
+    public bool IsReturningToNormal => isReturningToNormal;
+
     void Start()
     {
         inputHandler = GetComponent<InputManager>();

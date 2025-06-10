@@ -4,30 +4,20 @@ public class PlayerAnimation : MonoBehaviour
 {
     [Header("Animation")]
     [SerializeField] private Animator animator;
-    [SerializeField] private float animationSpeedMultiplier; // Normal walk speed multiplier
-    [SerializeField] private float runAnimationSpeedMultiplier; // Run speed multiplier
-    [SerializeField] private float jumpAnimationDuration = 0.5f; // Estimated duration of jump animation
+    [SerializeField] private float runAnimationSpeedMultiplier = 1.5f;
+    [SerializeField] private float smoothingSpeed = 0.1f; // Adjust this for smoother transitions
 
     private InputManager inputHandler;
     private PlayerMovement playerMovement;
     private PlayerCombat playerCombat;
-    private Rigidbody rb;
-    private float currentMovementSpeed;
-    private float horizontalDirection;
-    private float forwardDirection;
-    private float movementSmoothingTime = 0.1f;
-    private float jumpTimer = 0f;
-    private bool isJumpTriggered = false;
-
-    private enum MovementState { Idle, Walk, Crouch }
-    private MovementState currentMovementState = MovementState.Idle;
+    private float currentDirectionX;
+    private float currentDirectionY;
 
     void Start()
     {
         inputHandler = GetComponent<InputManager>();
         playerMovement = GetComponent<PlayerMovement>();
         playerCombat = GetComponent<PlayerCombat>();
-        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -35,74 +25,33 @@ public class PlayerAnimation : MonoBehaviour
         UpdateAnimator();
     }
 
-    void UpdateAnimator()
+    private void UpdateAnimator()
     {
         if (animator == null) return;
 
         Vector2 input = inputHandler.MoveInput;
-        float targetSpeed = input.magnitude * playerMovement.baseMoveSpeed;
-        float targetDirectionX = input.x;
-        float targetDirectionY = input.y;
 
-        currentMovementSpeed = Mathf.Lerp(currentMovementSpeed, targetSpeed, Time.deltaTime / movementSmoothingTime);
-        horizontalDirection = Mathf.Lerp(horizontalDirection, targetDirectionX, Time.deltaTime / movementSmoothingTime);
-        forwardDirection = Mathf.Lerp(forwardDirection, targetDirectionY, Time.deltaTime / movementSmoothingTime);
-
-        float horizontalSpeed = new Vector2(rb.linearVelocity.x, rb.linearVelocity.z).magnitude;
-
-        // Determine movement state
-        if (input.magnitude > 0.1f && !playerMovement.IsCrouching())
-        {
-            currentMovementState = MovementState.Walk;
-        }
-        else if (playerMovement.IsCrouching())
-        {
-            currentMovementState = MovementState.Crouch;
-        }
-        else
-        {
-            currentMovementState = MovementState.Idle;
-        }
-
-        float baseAnimationSpeed = 1.0f;
-        if (inputHandler.RunPressed && !playerMovement.IsCrouching())
-        {
-            baseAnimationSpeed *= runAnimationSpeedMultiplier;
-        }
-        else if (playerMovement.IsCrouching())
-        {
-            baseAnimationSpeed *= playerMovement.crouchSpeedReduction;
-        }
-
-        float maxSpeed = playerMovement.baseMoveSpeed * Mathf.Max(1.0f, runAnimationSpeedMultiplier, playerMovement.crouchSpeedReduction);
-        animator.speed = Mathf.Clamp01(horizontalSpeed / maxSpeed) * baseAnimationSpeed * animationSpeedMultiplier;
-
-        // Enhanced jump state with timer
-        if (inputHandler.JumpPressed && playerMovement.IsGrounded() && !playerMovement.IsCrouching())
-        {
-            isJumpTriggered = true;
-            jumpTimer = jumpAnimationDuration; // Start timer for full jump animation
-        }
-
-        if (isJumpTriggered)
-        {
-            jumpTimer -= Time.deltaTime;
-            if (jumpTimer <= 0)
-            {
-                isJumpTriggered = false;
-            }
-        }
-
-        bool isJumping = !playerMovement.IsGrounded() || isJumpTriggered; // Stay in jump state during airtime or timer
-        animator.SetBool("IsJumping", isJumping);
+        // Smoothly interpolate direction parameters
+        currentDirectionX = Mathf.Lerp(currentDirectionX, input.x, Time.deltaTime / smoothingSpeed);
+        currentDirectionY = Mathf.Lerp(currentDirectionY, input.y, Time.deltaTime / smoothingSpeed);
 
         // Set direction for blend tree
-        animator.SetFloat("DirectionX", horizontalDirection);
-        animator.SetFloat("DirectionY", forwardDirection);
+        animator.SetFloat("DirectionX", currentDirectionX);
+        animator.SetFloat("DirectionY", currentDirectionY);
 
-        animator.SetFloat("Speed", currentMovementSpeed);
+        // Set speed based on input magnitude
+        animator.SetFloat("Speed", input.magnitude > 0.1f ? 1.0f : 0.0f);
+
+        // Set other states
         animator.SetBool("IsCrouching", playerMovement.IsCrouching());
+        animator.SetBool("IsJumping", !playerMovement.IsGrounded());
         animator.SetBool("IsAiming", playerCombat.IsAiming());
+        animator.SetBool("IsRunning", inputHandler.RunPressed && !playerMovement.IsCrouching());
         animator.SetBool("IsGrounded", playerMovement.IsGrounded());
+
+        // Adjust animation speed for running
+        animator.speed = (inputHandler.RunPressed && !playerMovement.IsCrouching())
+            ? runAnimationSpeedMultiplier
+            : 1f;
     }
 }

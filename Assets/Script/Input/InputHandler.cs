@@ -12,6 +12,7 @@ public class InputManager : MonoBehaviour
     public bool AimPressed { get; private set; }
     public bool FreeCameraPressed { get; private set; }
     public bool ShoulderTogglePressed { get; private set; }
+    public bool CrouchPressed { get; private set; } // New crouch property
     private bool jumpPending;
 
     private void Awake()
@@ -56,6 +57,10 @@ public class InputManager : MonoBehaviour
         inputActions.Player.FreeCamera.canceled += ctx => FreeCameraPressed = false;
 
         inputActions.Player.ToggleLeftOrRight.performed += ctx => ShoulderTogglePressed = true;
+
+        // New crouch action
+        inputActions.Player.Crouch.performed += ctx => CrouchPressed = true;
+        inputActions.Player.Crouch.canceled += ctx => CrouchPressed = false;
     }
 
     private void OnEnable() => inputActions.Enable();
