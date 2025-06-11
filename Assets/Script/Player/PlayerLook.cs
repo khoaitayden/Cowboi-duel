@@ -19,6 +19,8 @@ public class PlayerLook : MonoBehaviour
     public float HorizontalCameraAngle => horizontalCameraAngle;
     public bool IsReturningToNormal => isReturningToNormal;
 
+    private IEnumerator turnBackCoroutine;
+
     void Start()
     {
         inputHandler = GetComponent<InputManager>();
@@ -27,6 +29,7 @@ public class PlayerLook : MonoBehaviour
         initialBodyRotation = horizontalCameraAngle;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        if (cameraMountPoint == null) Debug.LogWarning("cameraMountPoint not assigned on " + gameObject.name);
     }
 
     void Update()
@@ -50,7 +53,7 @@ public class PlayerLook : MonoBehaviour
                 initialBodyRotation = bodyRotationAngle;
                 isFreeCameraActive = true;
                 isReturningToNormal = false;
-                StopCoroutine("TurnBackToOriginalYaw");
+                if (turnBackCoroutine != null) StopCoroutine(turnBackCoroutine);
             }
 
             float minAngle = initialBodyRotation - maxFreeCameraRotation;
@@ -65,7 +68,8 @@ public class PlayerLook : MonoBehaviour
         {
             if (isFreeCameraActive && !isReturningToNormal)
             {
-                StartCoroutine(TurnBackToOriginalYaw());
+                turnBackCoroutine = TurnBackToOriginalYaw();
+                StartCoroutine(turnBackCoroutine);
                 isFreeCameraActive = false;
             }
 
@@ -75,10 +79,8 @@ public class PlayerLook : MonoBehaviour
                 transform.rotation = Quaternion.Euler(0, bodyRotationAngle, 0);
                 if (cameraMountPoint != null)
                 {
-                    cameraMountPoint.rotation = Quaternion.Euler(verticalCameraAngle, horizontalCameraAngle, 0f);
+                    cameraMountPoint.rotation = Quaternion.Euler(verticalCameraAngle, bodyRotationAngle, 0f);
                 }
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
             }
         }
     }

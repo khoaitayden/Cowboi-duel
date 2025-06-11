@@ -4,7 +4,6 @@ public class PlayerAnimation : MonoBehaviour
 {
     [Header("Animation")]
     [SerializeField] private Animator animator;
-    [SerializeField] private float runAnimationSpeedMultiplier = 1.5f;
     [SerializeField] private float smoothingSpeed = 0.1f; // Adjust this for smoother transitions
 
     private InputManager inputHandler;
@@ -18,6 +17,7 @@ public class PlayerAnimation : MonoBehaviour
         inputHandler = GetComponent<InputManager>();
         playerMovement = GetComponent<PlayerMovement>();
         playerCombat = GetComponent<PlayerCombat>();
+        if (animator == null) Debug.LogWarning("Animator component not assigned or found on " + gameObject.name);
     }
 
     void Update()
@@ -46,12 +46,10 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetBool("IsCrouching", playerMovement.IsCrouching());
         animator.SetBool("IsJumping", !playerMovement.IsGrounded());
         animator.SetBool("IsAiming", playerCombat.IsAiming());
-        animator.SetBool("IsRunning", inputHandler.RunPressed && !playerMovement.IsCrouching());
+        animator.SetBool("IsRunning", inputHandler.RunPressed && input.magnitude > 0.1f); // Allow running while crouching
         animator.SetBool("IsGrounded", playerMovement.IsGrounded());
 
-        // Adjust animation speed for running
-        animator.speed = (inputHandler.RunPressed && !playerMovement.IsCrouching())
-            ? runAnimationSpeedMultiplier
-            : 1f;
+        // Reset animation speed to default (no speedup)
+        animator.speed = 1f;
     }
 }
