@@ -13,11 +13,12 @@ TagManager:
   - RightHand
   - LeftLeg
   - RightLeg
+  - Ground
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
   - 

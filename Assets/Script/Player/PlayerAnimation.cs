@@ -2,54 +2,64 @@ using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
-    [Header("Animation")]
+    [Header("Animation Settings")]
     [SerializeField] private Animator animator;
-    [SerializeField] private float smoothingSpeed = 0.1f; // Adjust this for smoother transitions
+    [SerializeField] private float smoothingSpeed = 0.1f;
 
     private InputManager inputHandler;
     private PlayerMovement playerMovement;
     private PlayerCombat playerCombat;
     private float currentDirectionX;
     private float currentDirectionY;
+    private bool wasInJumpStartOrLanding;
 
     void Start()
     {
         inputHandler = GetComponent<InputManager>();
         playerMovement = GetComponent<PlayerMovement>();
         playerCombat = GetComponent<PlayerCombat>();
-        if (animator == null) Debug.LogWarning("Animator component not assigned or found on " + gameObject.name);
+        wasInJumpStartOrLanding = false;
     }
 
     void Update()
     {
-        UpdateAnimator();
+        if (animator != null)
+            UpdateAnimationParameters();
     }
 
-    private void UpdateAnimator()
+    public void TriggerJump()
     {
-        if (animator == null) return;
+        if (animator != null)
+            animator.SetTrigger("Jump");
+    }
+
+    public void SetIsGrounded(bool value)
+    {
+        if (animator != null)
+            animator.SetBool("IsGrounded", value);
+    }
+
+    private void UpdateAnimationParameters()
+    {
+        if (animator == null || playerMovement == null) return;
 
         Vector2 input = inputHandler.MoveInput;
-
-        // Smoothly interpolate direction parameters
         currentDirectionX = Mathf.Lerp(currentDirectionX, input.x, Time.deltaTime / smoothingSpeed);
         currentDirectionY = Mathf.Lerp(currentDirectionY, input.y, Time.deltaTime / smoothingSpeed);
-
-        // Set direction for blend tree
         animator.SetFloat("DirectionX", currentDirectionX);
         animator.SetFloat("DirectionY", currentDirectionY);
-
-        // Set speed based on input magnitude
-        animator.SetFloat("Speed", input.magnitude > 0.1f ? 1.0f : 0.0f);
-
-        // Set other states
+        animator.SetFloat("Speed", input.magnitude > 0.1f ? 1f : 0f);
         animator.SetBool("IsCrouching", playerMovement.IsCrouching());
-        animator.SetBool("IsJumping", !playerMovement.IsGrounded());
         animator.SetBool("IsAiming", playerCombat.IsAiming());
-        animator.SetBool("IsRunning", inputHandler.RunPressed && input.magnitude > 0.1f); // Allow running while crouching
-        animator.SetBool("IsGrounded", playerMovement.IsGrounded());
+        animator.SetBool("IsRunning", inputHandler.RunPressed && input.magnitude > 0.1f);
 
-        // Reset animation speed to default (no speedup)
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        bool isCurrentlyInJumpStartOrLanding = stateInfo.IsName("JumpStart") || stateInfo.IsName("Landing");
+        if (isCurrentlyInJumpStartOrLanding != wasInJumpStartOrLanding)
+        {
+            playerMovement.SetInJumpStartOrLanding(isCurrentlyInJumpStartOrLanding);
+            wasInJumpStartOrLanding = isCurrentlyInJumpStartOrLanding;
+        }
         animator.speed = 1f;
     }
 }

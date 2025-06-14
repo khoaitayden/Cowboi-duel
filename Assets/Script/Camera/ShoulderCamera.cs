@@ -2,23 +2,29 @@ using UnityEngine;
 
 public class ShoulderCamera : MonoBehaviour
 {
+    // Camera positioning settings
     [SerializeField] private Transform target;
-    [SerializeField] private Transform cameraPivot;    
-    [SerializeField] private float normalDistance = 2f;     
-    [SerializeField] private float aimDistance = 1f;        
-    [SerializeField] private float normalHeight = 1.5f;     // Height when standing
-    [SerializeField] private float crouchHeight = 0.8f;     // Reduced height when crouching
-    [SerializeField] private float runHeight = 1.8f;        // Height when running
-    [SerializeField] private float shoulderOffset = 0.5f;
-    [SerializeField] private float smoothSpeed = 5f;
-    [SerializeField] private float heightTransitionSpeed = 5f; // Speed of height transition
-    [SerializeField] private float normalFOV = 60f;   
-    [SerializeField] private float aimFOV = 40f;      
+    [SerializeField] private Transform cameraPivot;
+    [SerializeField] private float defaultDistance;
+    [SerializeField] private float aimDistance;
+    [SerializeField] private float defaultHeight;
+    [SerializeField] private float crouchHeight;
+    [SerializeField] private float runHeight;
+    [SerializeField] private float shoulderOffset;
+
+    // Smoothing settings
+    [SerializeField] private float smoothSpeed;
+    [SerializeField] private float heightTransitionSpeed;
+
+    // Field of view settings
+    [SerializeField] private float defaultFOV;
+    [SerializeField] private float aimFOV;
+
     private Vector3 currentVelocity;
-    private float currentDistance; 
+    private float currentDistance;
     private float currentFOV;
-    private float currentHeight;  
-    private float targetHeight;   // Target height to interpolate toward
+    private float currentHeight;
+    private float targetHeight;
     private bool isRightShoulder = true;
     private InputManager inputHandler;
     private Camera cam;
@@ -26,48 +32,61 @@ public class ShoulderCamera : MonoBehaviour
 
     void Start()
     {
-        cam = GetComponent<Camera>(); 
+        // Initialize components with safety checks
+        cam = GetComponent<Camera>();
+        if (cam == null)
+        {
+            Debug.LogError("Camera component not found on " + gameObject.name);
+            return;
+        }
         inputHandler = FindObjectOfType<InputManager>();
+        if (inputHandler == null)
+        {
+            Debug.LogError("InputManager not found in the scene.");
+        }
         playerMovement = FindObjectOfType<PlayerMovement>();
-        currentDistance = normalDistance;
-        currentFOV = normalFOV;
-        currentHeight = normalHeight;
-        targetHeight = normalHeight;
+        if (playerMovement == null)
+        {
+            Debug.LogError("PlayerMovement not found in the scene.");
+        }
+        currentDistance = defaultDistance;
+        currentFOV = defaultFOV;
+        currentHeight = defaultHeight;
+        targetHeight = defaultHeight;
         cam.fieldOfView = currentFOV;
-        if (inputHandler == null) Debug.LogWarning("InputManager not found on " + gameObject.name);
-        if (playerMovement == null) Debug.LogWarning("PlayerMovement not found on " + gameObject.name);
+    }
+
+    void Update()
+    {
+        HandleShoulderToggle();
     }
 
     void LateUpdate()
     {
         if (target == null || cameraPivot == null) return;
 
-        // Determine target height based on state
-        if (playerMovement.IsCrouching() && (inputHandler == null || !inputHandler.RunPressed))
-        {
-            targetHeight = crouchHeight;
-        }
-        else if (inputHandler != null && inputHandler.RunPressed)
-        {
-            targetHeight = runHeight;
-        }
-        else
-        {
-            targetHeight = normalHeight;
-        }
-
-        // Smoothly interpolate currentHeight toward targetHeight
+        targetHeight = GetTargetHeight();
         currentHeight = Mathf.Lerp(currentHeight, targetHeight, Time.deltaTime * heightTransitionSpeed);
-
-        float offset = isRightShoulder ? shoulderOffset : -shoulderOffset;
-        Vector3 shoulderOffsetVector = cameraPivot.right * offset;
-
-        // Simple position calculation
-        Vector3 desiredPosition = cameraPivot.position - (cameraPivot.forward * currentDistance) + shoulderOffsetVector + (Vector3.up * currentHeight);
-
+        Vector3 desiredPosition = CalculateCameraPosition();
         transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, 0.1f / smoothSpeed);
         transform.rotation = Quaternion.Lerp(transform.rotation, cameraPivot.rotation, smoothSpeed * Time.deltaTime);
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, currentFOV, smoothSpeed * Time.deltaTime);
+    }
+
+    private float GetTargetHeight()
+    {
+        if (playerMovement != null && playerMovement.IsCrouching() && (inputHandler == null || !inputHandler.RunPressed))
+            return crouchHeight;
+        if (inputHandler != null && inputHandler.RunPressed)
+            return runHeight;
+        return defaultHeight;
+    }
+
+    private Vector3 CalculateCameraPosition()
+    {
+        float offset = isRightShoulder ? shoulderOffset : -shoulderOffset;
+        Vector3 shoulderOffsetVector = cameraPivot.right * offset;
+        return cameraPivot.position - (cameraPivot.forward * currentDistance) + shoulderOffsetVector + (Vector3.up * currentHeight);
     }
 
     private void HandleShoulderToggle()
@@ -80,12 +99,7 @@ public class ShoulderCamera : MonoBehaviour
 
     public void SetAiming(bool isAiming)
     {
-        currentDistance = isAiming ? aimDistance : normalDistance;
-        currentFOV = isAiming ? aimFOV : normalFOV;
-    }
-
-    void Update()
-    {
-        HandleShoulderToggle();
+        currentDistance = isAiming ? aimDistance : defaultDistance;
+        currentFOV = isAiming ? aimFOV : defaultFOV;
     }
 }
