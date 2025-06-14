@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isCrouching;
     private bool isJumping;
     private bool isInJumpStartOrLanding;
-    private bool isPreparingJump; // New flag for jump preparation
+    private bool isPreparingJump; // Kept for potential animation use
     private float jumpStartTime;
     private float jumpStartHeight;
     private float lastJumpTime = -100f;
@@ -62,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 moveDirection = CalculateMoveDirection(input);
         float speed = CalculateMoveSpeed(input);
 
-        if (isInJumpStartOrLanding || isPreparingJump) // Stop movement during jump prep or landing
+        if (isInJumpStartOrLanding) // Only stop movement during jump start or landing
         {
             Vector3 velocity = rb.linearVelocity;
             velocity.x = 0f;
@@ -77,7 +77,7 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = newVelocity;
         }
 
-        if (input.magnitude < 0.1f && !isInJumpStartOrLanding && !isPreparingJump)
+        if (input.magnitude < 0.1f && !isInJumpStartOrLanding)
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
     }
 
@@ -117,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator ApplyJumpForceAfterDelay()
     {
-        isPreparingJump = true; // Set flag during preparation
+        isPreparingJump = true; // Kept for potential animation use
         yield return new WaitForSeconds(jumpPreparationDelay);
         if (rb != null)
         {
@@ -125,7 +125,7 @@ public class PlayerMovement : MonoBehaviour
             jumpStartHeight = transform.position.y;
             rb.AddForce(Vector3.up * jumpStrength, ForceMode.Impulse);
             isGrounded = false;
-            isPreparingJump = false; // Reset flag after jump
+            isPreparingJump = false;
         }
     }
 
