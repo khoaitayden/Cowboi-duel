@@ -166,10 +166,10 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (isGroundedNow && !isGrounded && Mathf.Abs(rb.linearVelocity.y) < 0.1f)
         {
-            Debug.Log("Forced Grounded at Position: " + transform.position.y);
+            //Debug.Log("Forced Grounded at Position: " + transform.position.y);
         }
 
-        Debug.Log("Ground Check: Hit=" + isGroundedNow + ", Position=" + transform.position.y + ", VelocityY=" + rb.linearVelocity.y);
+        //Debug.Log("Ground Check: Hit=" + isGroundedNow + ", Position=" + transform.position.y + ", VelocityY=" + rb.linearVelocity.y);
         return isGroundedNow;
     }
 

@@ -7,7 +7,7 @@ AnimatorStateMachine:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AimLayer
+  m_Name: ArmLayer
   m_ChildStates: []
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
@@ -283,25 +283,25 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -5420682124081313685}
-    m_Position: {x: 240, y: -90, z: 0}
+    m_Position: {x: 250, y: -320, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6365411821966900628}
-    m_Position: {x: -170, y: 30, z: 0}
+    m_Position: {x: 20, y: -190, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2474523236490736084}
-    m_Position: {x: 700, y: 60, z: 0}
+    m_Position: {x: 570, y: -240, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5093491660572536800}
-    m_Position: {x: 240, y: -300, z: 0}
+    m_Position: {x: 220, y: -470, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1590880960778233219}
-    m_Position: {x: -60, y: 300, z: 0}
+    m_Position: {x: 960, y: -390, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3156233308567213971}
-    m_Position: {x: -50, y: 500, z: 0}
+    m_Position: {x: 1030, y: -150, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3732949629468405972}
-    m_Position: {x: -90, y: 170, z: 0}
+    m_Position: {x: 970, y: -500, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 2455402165654508781}
@@ -309,8 +309,8 @@ AnimatorStateMachine:
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: -310, y: 240, z: 0}
-  m_EntryPosition: {x: 280, y: -520, z: 0}
+  m_AnyStatePosition: {x: 790, y: -420, z: 0}
+  m_EntryPosition: {x: 560, y: -510, z: 0}
   m_ExitPosition: {x: 730, y: 390, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: -5420682124081313685}
@@ -442,7 +442,7 @@ AnimatorController:
   - serializedVersion: 5
     m_Name: LegMovement
     m_StateMachine: {fileID: -2335503305720652369}
-    m_Mask: {fileID: 0}
+    m_Mask: {fileID: 31900000, guid: d08e2d88c4ce3104d905f3094270eaca, type: 2}
     m_Motions: []
     m_Behaviours: []
     m_BlendingMode: 0
@@ -452,14 +452,14 @@ AnimatorController:
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
   - serializedVersion: 5
-    m_Name: AimLayer
+    m_Name: ArmLayer
     m_StateMachine: {fileID: -9120874259173901706}
-    m_Mask: {fileID: 0}
+    m_Mask: {fileID: 31900000, guid: c3d65e49118392b4aa68282de968662e, type: 2}
     m_Motions: []
     m_Behaviours: []
     m_BlendingMode: 0
     m_SyncedLayerIndex: -1
-    m_DefaultWeight: 0
+    m_DefaultWeight: 1
     m_IKPass: 0
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
@@ -775,9 +775,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.1
+  m_TransitionDuration: 0.2
   m_TransitionOffset: 0
-  m_ExitTime: 1
+  m_ExitTime: 0.5
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -872,10 +872,10 @@ BlendTree:
   m_Name: Blend Tree
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 40f8ac7ca81eee74ca1169f761472515, type: 2}
+    m_Motion: {fileID: 7400000, guid: 3d48677dbbd663840ba7821da975b6c7, type: 2}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
-    m_TimeScale: 0.5
+    m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: Speed
     m_Mirror: 0
